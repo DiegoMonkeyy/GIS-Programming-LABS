@@ -1,0 +1,36 @@
+import geopandas as gpd 
+gdf = gpd.read_file('downloads/data.geojson')
+
+# View the first 5 rows of the GeoDataFrame
+print(gdf.head())
+# view the column names
+print(gdf.columns)
+# view the shape of the GeoDataFrame
+print(gdf.shape)
+# view the data type of each column
+print(gdf.dtypes)
+
+class CensusTract:
+    def __init__(self, geoid, population, geometry):
+        self.geoid = geoid
+        self.population = population
+        self.geometry = geometry
+    
+    def calculate_population_density(self):
+        self.area = self.geometry.area  # Area in square meters
+        population_density = self.population / self.area  # Population density per square meter
+        
+        return population_density
+        ### <<<<<<<<<<< END OF YOUR CODE <<<<<<<<<<< ###
+
+    # calculate the Population Density based on geometry
+    ### >>>>>>>>>>>> YOUR CODE HERE <<<<<<<<<<< ###
+CensusTract_list = []
+
+for index, row in gdf.iterrows():
+    tract = CensusTract(row['GeoId'], row['Pop'], row['geometry'])
+    density = tract.calculate_population_density()
+    CensusTract_list.append(density)
+
+gdf['Population_Density'] = CensusTract_list
+print(gdf.head())
