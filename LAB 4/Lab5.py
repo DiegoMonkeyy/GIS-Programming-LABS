@@ -42,10 +42,7 @@ CAMPUS_GDB = os.path.join(DATA_FOLDER, 'Campus.gdb')
 CSV_PATH = os.path.join(DATA_FOLDER, 'garages.csv')
 # Output GDB for Lab5 results
 LAB5_GDB = os.path.join(DATA_FOLDER, 'Lab5.gdb')
-
-
-
-
+### <<<<<< Add your code here
 if not ARCPY_AVAILABLE:
     print("ArcPy module not available. This script requires ArcGIS Pro's Python environment.")
     print("Run this script inside an ArcGIS Pro Python environment or install ArcPy where available.")
