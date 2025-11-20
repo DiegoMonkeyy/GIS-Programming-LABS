@@ -25,62 +25,14 @@ Buffer_Radius = "150 meter"
 """
 ### >>>>>> Add your code here
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Allow non-interactive runs by reading optional environment variables first
-# and command-line arguments. Command-line args override environment vars.
-import argparse
-
-parser = argparse.ArgumentParser(description='Lab5 processing: buffer a selected garage and clip structures')
-parser.add_argument('--garage', '-g', help='Name of the garage to buffer')
-parser.add_argument('--radius', '-r', help="Buffer radius in meters (e.g. 150) or full distance string (e.g. '150 Meters')")
-parser.add_argument('--dry-run', action='store_true', help='Print planned actions but do not run ArcPy')
-args = parser.parse_args()
-
-env_garage = os.environ.get('LAB5_GARAGE')
-env_radius = os.environ.get('LAB5_RADIUS')
-
-if args.garage:
-    Selected_Garage_Name = args.garage.strip()
-elif env_garage:
-    Selected_Garage_Name = env_garage.strip()
-else:
-    # Prompt the user for the garage name
-    Selected_Garage_Name = input("Enter the name of the garage to buffer: ").strip()
-
+# Prompt the user only for the garage name; use a fixed buffer distance
+Selected_Garage_Name = input("Enter the name of the garage to buffer: ").strip()
 if not Selected_Garage_Name:
     print("No garage name provided. Exiting.")
     sys.exit(1)
 
-if args.radius:
-    radius_input = args.radius.strip()
-elif env_radius:
-    radius_input = env_radius.strip()
-else:
-    # Prompt the user for the buffer radius (meters) or allow a full distance string
-    radius_input = input("Enter buffer radius in meters (e.g. 150) or full distance (e.g. '150 Meters'): ").strip()
-
-if not radius_input:
-    # default distance
-    Buffer_Radius = "150 Meters"
-else:
-    # accept numeric meters or a full ArcPy distance string
-    try:
-        radius_m = float(radius_input)
-        Buffer_Radius = f"{radius_m} Meters"
-    except Exception:
-        Buffer_Radius = radius_input
-
-dry_run = args.dry_run
-
-if not radius_input:
-    # default distance
-    Buffer_Radius = "150 Meters"
-else:
-    # accept numeric meters or a full ArcPy distance string
-    try:
-        radius_m = float(radius_input)
-        Buffer_Radius = f"{radius_m} Meters"
-    except Exception:
-        Buffer_Radius = radius_input
+# Fixed buffer radius for simplicity
+Buffer_Radius = "150 Meters"
 
 # Data and output paths
 DATA_FOLDER = os.path.join(BASE_DIR, 'Lab4_Data')
@@ -91,14 +43,7 @@ CSV_PATH = os.path.join(DATA_FOLDER, 'garages.csv')
 # Output GDB for Lab5 results
 LAB5_GDB = os.path.join(DATA_FOLDER, 'Lab5.gdb')
 
-if dry_run:
-    print("Dry-run mode: would run with the following parameters:")
-    print(f"  Garage: {Selected_Garage_Name}")
-    print(f"  Buffer: {Buffer_Radius}")
-    print(f"  Campus GDB: {CAMPUS_GDB}")
-    print(f"  Output GDB: {LAB5_GDB}")
-    print("Dry-run complete. No ArcPy actions were performed.")
-    sys.exit(0)
+
 
 
 if not ARCPY_AVAILABLE:
