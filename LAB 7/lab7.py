@@ -1,29 +1,65 @@
-import os, glob
+import os
 import arcpy
 from arcpy.sa import Raster
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-dem = glob.glob(os.path.join(BASE_DIR, '..', 'Lab 7.1', 'DEM', '*.tif'))[0]
-band1 = glob.glob(os.path.join(BASE_DIR, '..', 'Lab 7.1', 'LandSAT', '*_B1*.tif'))[0]
-band2 = glob.glob(os.path.join(BASE_DIR, '..', 'Lab 7.1', 'LandSAT', '*_B2*.tif'))[0]
-band3 = glob.glob(os.path.join(BASE_DIR, '..', 'Lab 7.1', 'LandSAT', '*_B3*.tif'))[0]
-band4 = glob.glob(os.path.join(BASE_DIR, '..', 'Lab 7.1', 'LandSAT', '*_B4*.tif'))[0]
+# Hardcoded absolute paths for DEM and LandSAT bands
+DEM_PATH = r"C:\Users\diego\Downloads\Labs\GIS-Programming-LABS\LAB 7\Lab 7.1\DEM\n30_w097_1arc_v3.tif"
+BAND_BLUE = r"C:\Users\diego\Downloads\Labs\GIS-Programming-LABS\LAB 7\Lab 7.1\LandSAT\LT05_L2SP_026039_20110803_20200820_02_T1_SR_B1.TIF"
+BAND_GREEN = r"C:\Users\diego\Downloads\Labs\GIS-Programming-LABS\LAB 7\Lab 7.1\LandSAT\LT05_L2SP_026039_20110803_20200820_02_T1_SR_B2.TIF"
+BAND_RED = r"C:\Users\diego\Downloads\Labs\GIS-Programming-LABS\LAB 7\Lab 7.1\LandSAT\LT05_L2SP_026039_20110803_20200820_02_T1_SR_B3.TIF"
+BAND_NIR = r"C:\Users\diego\Downloads\Labs\GIS-Programming-LABS\LAB 7\Lab 7.1\LandSAT\LT05_L2SP_026039_20110803_20200820_02_T1_SR_B4.TIF"
+OUTPUT_DIR = r"C:\Users\diego\Downloads\Labs\GIS-Programming-LABS\outputs"
 
-out = os.path.join(BASE_DIR, 'outputs')
-os.makedirs(out, exist_ok=True)
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 arcpy.env.overwriteOutput = True
 
-# HillShade
-arcpy.ddd.HillShade(dem, os.path.join(out, 'DEM_hillshade.tif'), 315, 45, 'NO_SHADOWS', 1)
+print("Starting HillShade...")
+try:
+    arcpy.ddd.HillShade(
+        DEM_PATH,
+        os.path.join(OUTPUT_DIR, 'DEM_hillshade.tif'),
+        315,  # azimuth
+        45,   # altitude
+        'NO_SHADOWS',
+        1     # z_factor
+    )
+    print("HillShade completed.")
+    print(arcpy.GetMessages())
+except Exception as e:
+    print("HillShade error:", e)
 
-# Slope
-arcpy.ddd.Slope(dem, os.path.join(out, 'DEM_slope.tif'), 'DEGREE', 1)
+print("Starting Slope...")
+try:
+    arcpy.ddd.Slope(
+        DEM_PATH,
+        os.path.join(OUTPUT_DIR, 'DEM_slope.tif'),
+        'DEGREE',
+        1     # z_factor
+    )
+    print("Slope completed.")
+    print(arcpy.GetMessages())
+except Exception as e:
+    print("Slope error:", e)
 
-# Composite (RED=B3, GREEN=B2, BLUE=B1)
-arcpy.management.CompositeBands(f"{band3};{band2};{band1}", os.path.join(out, 'LANDSAT_RGB.tif'))
+print("Starting RGB Composite...")
+try:
+    arcpy.management.CompositeBands(
+        f"{BAND_RED};{BAND_GREEN};{BAND_BLUE}",
+        os.path.join(OUTPUT_DIR, 'LANDSAT_RGB.tif')
+    )
+    print("RGB Composite completed.")
+    print(arcpy.GetMessages())
+except Exception as e:
+    print("RGB Composite error:", e)
 
-# NDVI ESRI formula: ((NIR - RED)/(NIR + RED))*100 + 100
-nir = Raster(band4)
-red = Raster(band3)
-ndvi = ((nir - red) / (nir + red)) * 100 + 100
-ndvi.save(os.path.join(out, 'LANDSAT_NDVI_ESRI.tif'))
+print("Starting NDVI Calculation...")
+try:
+    nir = Raster(BAND_NIR)
+    red = Raster(BAND_RED)
+    ndvi = ((nir - red) / (nir + red)) * 100 + 100
+    ndvi.save(os.path.join(OUTPUT_DIR, 'LANDSAT_NDVI_ESRI.tif'))
+    print("NDVI Calculation completed.")
+    print(arcpy.GetMessages())
+except Exception as e:
+    print("NDVI Calculation error:", e)
